@@ -121,8 +121,10 @@ export default class GirouetteProvider {
   async #processControllerFile(filePath: string) {
     try {
       const controller = await import(pathToFileURL(filePath).href)
-      this.#registerControllerRoutes(controller)
-      this.#registerResourceRoutes(controller)
+
+      const controllerPath = filePath.split('/').slice(-2).join('/').split('.')[0]
+      this.#registerControllerRoutes(controller, controllerPath)
+      this.#registerResourceRoutes(controller, controllerPath)
     } catch (error) {
       this.#logger?.debug({ error }, '[Girouette] Error processing controller file')
     }
@@ -131,13 +133,13 @@ export default class GirouetteProvider {
   /**
    * Registers all decorated routes from a controller
    */
-  #registerControllerRoutes(controller: any) {
+  #registerControllerRoutes(controller: any, controllerPath: string) {
     try {
       const routes = Reflect.getMetadata(REFLECT_ROUTES_KEY, controller.default)
       if (!routes) return
 
       for (const methodName in routes) {
-        this.#registerSingleRoute(controller, methodName, routes[methodName])
+        this.#registerSingleRoute(controller, methodName, routes[methodName], controllerPath)
       }
     } catch (error) {
       this.#logger?.debug({ error }, '[Girouette] Error registering controller routes')
@@ -147,7 +149,12 @@ export default class GirouetteProvider {
   /**
    * Registers a single route with the AdonisJS router, applying any group configurations
    */
-  #registerSingleRoute(controller: any, methodName: string, route: GirouetteRoute) {
+  #registerSingleRoute(
+    controller: any,
+    methodName: string,
+    route: GirouetteRoute,
+    controllerPath: string
+  ) {
     try {
       const group = Reflect.getMetadata(REFLECT_GROUP_KEY, controller.default) as
         | GroupMetadata
@@ -161,7 +168,7 @@ export default class GirouetteProvider {
         | undefined
 
       const finalRoute = this.#applyGroupConfiguration(route, group, groupMiddleware)
-      const adonisRoute = this.#createRoute(finalRoute, controller, methodName)
+      const adonisRoute = this.#createRoute(finalRoute, controllerPath, methodName)
       this.#configureRoute(adonisRoute, finalRoute, groupDomain)
     } catch (error) {
       this.#logger?.debug({ error }, '[Girouette] Error registering single route')
@@ -225,8 +232,8 @@ export default class GirouetteProvider {
   /**
    * Creates a new route in the AdonisJS router
    */
-  #createRoute(route: GirouetteRoute, controller: any, methodName: string) {
-    return this.#router!.route(route.pattern, [route.method], [controller.default, methodName])
+  #createRoute(route: GirouetteRoute, controllerPath: string, methodName: string) {
+    return this.#router!.route(route.pattern, [route.method], `${controllerPath}.${methodName}`)
   }
 
   /**
@@ -271,12 +278,12 @@ export default class GirouetteProvider {
   /**
    * Registers resource routes for a controller
    */
-  #registerResourceRoutes(controller: any) {
+  #registerResourceRoutes(controller: any, path: string) {
     try {
       const resourcePattern = Reflect.getMetadata(REFLECT_RESOURCE_KEY, controller.default)
       if (!resourcePattern) return
 
-      const resource = this.#router!.resource(resourcePattern, controller.default)
+      const resource = this.#router!.resource(resourcePattern, path)
       this.#configureResource(resource, controller)
     } catch (error) {
       this.#logger?.debug({ error }, '[Girouette] Error registering resource routes')

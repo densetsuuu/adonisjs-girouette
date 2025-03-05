@@ -5,7 +5,7 @@ import app from '@adonisjs/core/services/app'
 import { join } from 'node:path'
 import { cwd } from 'node:process'
 import { HttpRouterService } from '@adonisjs/core/types'
-import { HTTP_METHODS, RESOURCE_METHODS, ResourceRoute, Route } from './utils.js'
+import { HTTP_METHODS, parseControllerMethod, RESOURCE_METHODS, Route } from './utils.js'
 import { RouteResource } from '@adonisjs/core/http'
 
 test.group('GirouetteProvider', async (group) => {
@@ -64,15 +64,16 @@ test.group('GirouetteProvider', async (group) => {
 
     await provider.start()
 
-    const resourceRoute = router.routes[0] as unknown as ResourceRoute
-
+    const resourceRoute = router.routes[0] as RouteResource
     const routes: Route[] = resourceRoute.routes.map((r: any) => r.toJSON())
 
     assert.isTrue(routes.every((r) => r.pattern.startsWith('/posts')))
 
     assert.isTrue(routes.every((r) => r.methods.every((m) => HTTP_METHODS.includes(m))))
 
-    const controllerMethods: string[] = routes.map((i) => i.handler.reference[1])
+    const controllerMethods: string[] = routes.map((i) =>
+      parseControllerMethod(i.handler.reference)
+    )
 
     assert.isTrue(controllerMethods.every((r) => RESOURCE_METHODS.includes(r)))
   })
@@ -82,15 +83,16 @@ test.group('GirouetteProvider', async (group) => {
 
     await provider.start()
 
-    const resourceRoute = router.routes[0] as unknown as ResourceRoute
-
+    const resourceRoute = router.routes[0] as RouteResource
     const routes: Route[] = resourceRoute.routes.map((r: any) => r.toJSON())
 
     assert.isTrue(routes.every((r) => r.pattern.startsWith('/posts')))
 
     assert.isTrue(routes.every((r) => r.methods.every((m) => HTTP_METHODS.includes(m))))
 
-    const controllerMethods: string[] = routes.map((i) => i.handler.reference[1])
+    const controllerMethods: string[] = routes.map((i) =>
+      parseControllerMethod(i.handler.reference)
+    )
 
     assert.isTrue(controllerMethods.every((r) => RESOURCE_METHODS.includes(r)))
   })

@@ -25,6 +25,10 @@ export interface ResourceRoute {
   routes: Route[]
 }
 
+export const parseControllerMethod = (route: any) => {
+  return route.split('.').at(-1)
+}
+
 export const HTTP_METHODS = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'ANY', 'HEAD']
 
 export const RESOURCE_METHODS = ['index', 'store', 'show', 'update', 'destroy', 'edit', 'create']
