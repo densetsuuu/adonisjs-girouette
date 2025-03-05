@@ -7,10 +7,10 @@
 </br>
 </br>
 
-![Statements](https://img.shields.io/badge/statements-97.68%25-brightgreen.svg?style=flat)
-![Branches](https://img.shields.io/badge/branches-89.87%25-yellow.svg?style=flat)
-![Functions](https://img.shields.io/badge/functions-96.55%25-brightgreen.svg?style=flat)
-![Lines](https://img.shields.io/badge/lines-97.68%25-brightgreen.svg?style=flat)
+![Statements](https://img.shields.io/badge/statements-98.02%25-brightgreen.svg?style=flat)
+![Branches](https://img.shields.io/badge/branches-90.8%25-brightgreen.svg?style=flat)
+![Functions](https://img.shields.io/badge/functions-96.96%25-brightgreen.svg?style=flat)
+![Lines](https://img.shields.io/badge/lines-98.02%25-brightgreen.svg?style=flat)
 
 # Girouette
 
@@ -48,6 +48,9 @@ import {
   ResourceMiddleware,
   GroupMiddleware,
   Resource,
+  Except,
+  Only,
+  ApiOnly,
   Where,
   Group,
   GroupDomain,
@@ -174,6 +177,9 @@ export default class PostsController {
 - `@GroupMiddleware(middleware: Middleware[])` - Apply middleware to all routes
 - `@Middleware(middleware: Middleware[])` - Apply middleware to a single route
 - `@Resource(pattern: string, name?: string)` - Create RESTful resource routes
+- `@Except(actions: ResourceActionNames | ResourceActionNames[])` - Exclude route actions from the resource
+- `@Only(actions: ResourceActionNames | ResourceActionNames[])` - Include only specified route actions in the resource
+- `@ApiOnly()` - Include only API resource actions in the resource (index, store, show, update, destroy)
 - `@ResourceMiddleware(actions: string | string[], middleware: Middleware[])` - Apply middleware to resource actions
 - `@Where(param: string, matcher: string | RegExp | Function)` - Add route parameter constraints
 
@@ -212,6 +218,39 @@ export default class AdminPostsController {
   // Only store, update, and destroy methods are protected
 }
 ```
+
+Removing route actions from the resource (e.g., `destroy`):
+
+```typescript
+import { Resource, Except } from '@softwarecitadel/girouette'
+
+@Resource('/admin/posts', 'admin.posts')
+@Except('destroy')
+export default class AdminPostsController {
+  // The destroy method is not included in the resource
+}
+```
+
+Api only resource:
+
+```typescript
+import { Resource, ApiOnly } from '@softwarecitadel/girouette'
+
+@Resource('/admin/posts', 'admin.posts')
+@ApiOnly()
+export default class AdminPostsController {
+  // The create and edit methods are not included in the resource, because they are
+  // meant to display forms, which is not needed in an API
+}
+```
+
+## Compatibility with others third-party packages
+
+### [Tuyau](https://tuyau.julr.dev/docs/installation)
+
+Tuyau is a set of tools created to build typesafe APIs with AdonisJS. Girouette is fully compatible with Tuyau **E2E Typesafe client**, and you can use both packages together to create a powerful and elegant API.
+
+Feel free to check out the [Tuyau documentation](https://tuyau.julr.dev/docs/installation) to learn more about how to use it.
 
 ## License
 

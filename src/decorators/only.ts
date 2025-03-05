@@ -4,7 +4,7 @@ import { ResourceActionNames } from '@adonisjs/core/types/http'
 /**
  * The `@Only` decorator specifies which CRUD methods should be included in the resource.
  *
- * @param names The CRUD methods to include in the resource
+ * @param actions The CRUD methods to include in the resource
  *
  * @example
  * ```ts
@@ -17,8 +17,8 @@ import { ResourceActionNames } from '@adonisjs/core/types/http'
  * }
  * ```
  */
-export const Only = (names: ResourceActionNames[]) => {
+export const Only = (actions: ResourceActionNames | ResourceActionNames[]) => {
   return (target: any) => {
-    Reflect.defineMetadata(REFLECT_RESOURCE_ONLY_KEY, names, target)
+    Reflect.defineMetadata(REFLECT_RESOURCE_ONLY_KEY, actions, target)
   }
 }

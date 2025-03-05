@@ -4,7 +4,7 @@ import { ResourceActionNames } from '@adonisjs/core/types/http'
 /**
  * The `@Except` decorator specifies which CRUD methods should be excluded from the resource.
  *
- * @param names The CRUD methods to exclude from the resource
+ * @param actions The CRUD methods to exclude from the resource
  *
  * @example
  * ```ts
@@ -20,8 +20,8 @@ import { ResourceActionNames } from '@adonisjs/core/types/http'
  * }
  * ```
  */
-export const Except = (names: ResourceActionNames[]) => {
+export const Except = (actions: ResourceActionNames | ResourceActionNames[]) => {
   return (target: any) => {
-    Reflect.defineMetadata(REFLECT_RESOURCE_EXCEPT_KEY, names, target)
+    Reflect.defineMetadata(REFLECT_RESOURCE_EXCEPT_KEY, actions, target)
   }
 }
